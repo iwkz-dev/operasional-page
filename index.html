@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Dashboard Masjid Al-Falah</title>
+
+    <!-- CSS Files -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
+  </head>
+  <body id="page-top">
+    <div id="wrapper">
+      <!-- Content Wrapper -->
+      <div id="content-wrapper" class="d-flex flex-column">
+        <!-- Main Content -->
+        <div id="content">
+          <!-- Topbar -->
+          <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+              <div class="sidebar-brand-text mx-3">Masjid Al-Falah</div>
+            </a>
+          </nav>
+          <!-- End of Topbar -->
+
+          <!-- Begin Page Content -->
+          <div class="container-fluid">
+            <!-- Page Heading -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+              <h1 data-component="currentMonth" class="h3 mb-0 text-gray-800">December 2019</h1>
+            </div>
+
+            <!-- Content Progress Income -->
+            <div class="row">
+              <div class="col-xl-12"><div class="card shadow mb-4">
+                  <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"></h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="container">
+                      <h1 id="mainTotalIncome" class="display-4">-</h1>
+                    </div>
+                    <div id="incomePercentage">
+                      <h4 class="small font-weight-bold">Persentasi Pemasukan <span class="float-right">0%</span></h4>
+                      <div class="progress mb-4">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                    </div>
+                    <div class="donasi">
+                      <form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                        <input type="hidden" name="cmd" value="_s-xclick" />
+                        <input type="hidden" name="hosted_button_id" value="QD7NJS5R6VSWE" />
+                        <input type="hidden" name="item_name" value="infaq_operasional_masjid_alfalah" />
+                        <button type="submit" name="submit" class="btn btn-primary btn-lg btn-block"><i class="fas fa-donate"></i> <span class="donate-text">Sedekah Sekarang!</span></button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+            <!-- Content Info Income & Bill -->
+            <div class="row">
+              <!-- Total Income Info -->
+              <div class="col-xl-6 col-md-6 mb-4">
+                  <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                      <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                          <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Pemasukan</div>
+                          <div id="totalIncome" class="h5 mb-0 font-weight-bold text-gray-800">-</div>
+                          <div id="incomeChart" style="height: 300px; width: 100%;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Total Bill Info -->
+                <div class="col-xl-6 col-md-6 mb-4">
+                  <div class="card border-left-danger shadow h-100 py-2">
+                    <div class="card-body">
+                      <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                          <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Pengeluaran</div>
+                          <div id="totalBill" cclass="h5 mb-0 font-weight-bold text-gray-800">-</div>
+                          <div id="billChart" style="height: 300px; width: 100%;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <!-- End of Main Content -->
+
+          <!-- Footer -->
+          <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+              <div class="copyright text-center my-auto">
+                <span>Copyright &copy; IT-Club IWKZ e.V.</span>
+              </div>
+            </div>
+          </footer>
+          <!-- End of Footer -->
+        </div>
+        <!-- End of Content Wrapper -->      
+      </div>
+    </div>
+  
+    <!-- JS Files -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="vendor/axios/axios.min.js"></script>
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="vendor/canvasjs/canvasjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/id.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  
+    <script src="js/sb-admin-2.min.js"></script>
+    <script src="js/app.js" type="module"></script>
+  </body>
+</html>
