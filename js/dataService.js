@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:9001';//'https://api.alfalah.de';
+import { API_URL } from './config.js';
 
 const getParams = (month, year) => {
   let params = '';

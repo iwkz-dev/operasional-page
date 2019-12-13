@@ -20,43 +20,38 @@ class IncomeInfo {
 
   run() {
     this.initIncome();
-    this.initProgressBar();
-  }
-
-  getMainIncomeCounter() {
-    return this.mainIncomeCounter;
-  }
-
-  getTotalIncomeCounter() {
-    return this.totalIncomeCounter;
-  }
-
-  getPieChart() {
-    return this.pieChart;
+    this.initMainIncomeAndProgressBar();
   }
 
   initIncome() {
     getIncomeData()
       .then(({ data: { data } }) => {
-        const { totalIncomes, totalIncomeByTypes } = data[0];
-  
-        this.mainIncomeCounter.update(totalIncomes);
-
-        this.totalIncomeCounter.update(totalIncomes);
-
-        const pieChartData = this.extractTotalWithEachType(totalIncomeByTypes);
-        this.pieChart.updateData(pieChartData);
-        this.pieChart.render();
+        this.updateData(data[0]);
       })
   }
 
-  initProgressBar() {
+  initMainIncomeAndProgressBar() {
     getIncomePercentage()
       .then(({ data: { data } }) => {
-        const { incomePercentage } = data[0];
-
-        this.progressBar(incomePercentage);
+        this.updateMainIncomeData(data[0]);
       });
+  }
+
+  updateMainIncomeData({ totalIncome, incomePercentage }) {
+    if (totalIncome) {
+      this.mainIncomeCounter.update(totalIncome);
+    }
+    if (incomePercentage) {
+      this.progressBar(incomePercentage);
+    }
+  }
+
+  updateData({ totalIncomes, totalIncomeByTypes }) {
+    this.totalIncomeCounter.update(totalIncomes);
+
+    const pieChartData = this.extractTotalWithEachType(totalIncomeByTypes);
+    this.pieChart.updateData(pieChartData);
+    this.pieChart.render();
   }
 
   extractTotalWithEachType(totalIncomeByTypes) {

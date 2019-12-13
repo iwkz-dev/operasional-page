@@ -20,8 +20,8 @@
           <!-- Topbar -->
           <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-              <div class="sidebar-brand-text mx-3">Masjid Al-Falah</div>
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
+              <div class="sidebar-brand-text mx-3">Operasional Masjid Al-Falah</div>
             </a>
           </nav>
           <!-- End of Topbar -->
@@ -30,7 +30,7 @@
           <div class="container-fluid">
             <!-- Page Heading -->
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
-              <h1 data-component="currentMonth" class="h3 mb-0 text-gray-800">December 2019</h1>
+              <h1 id="selectedMonth" class="h3 mb-0 text-gray-800">-</h1>
             </div>
 
             <!-- Content Progress Income -->
@@ -118,10 +118,12 @@
     <script src="vendor/axios/axios.min.js"></script>
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="vendor/canvasjs/canvasjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/id.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-  
-    <script src="js/sb-admin-2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/id.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+
+    <script src="js/dateService.js"></script>
     <script src="js/app.js" type="module"></script>
   </body>
 </html>

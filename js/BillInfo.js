@@ -18,25 +18,19 @@ class BillInfo {
     this.initBill();
   }
 
-  getTotalBillCounter() {
-    return this.totalBillCounter;
-  }
-
-  getPieChart() {
-    return this.pieChart;
-  }
-
   initBill() {
     getBillData()
       .then(({ data: { data } }) => {
-        const { totalBills, totalBillByTypes } = data[0];
-
-        this.totalBillCounter.update(totalBills);
-
-        const pieChartData = this.extractTotalWithEachType(totalBillByTypes);
-        this.pieChart.updateData(pieChartData);
-        this.pieChart.render();
+        this.updateData(data[0])
       })
+  }
+
+  updateData({ totalBills, totalBillByTypes }) {
+    this.totalBillCounter.update(totalBills);
+
+    const pieChartData = this.extractTotalWithEachType(totalBillByTypes);
+    this.pieChart.updateData(pieChartData);
+    this.pieChart.render();
   }
 
   extractTotalWithEachType(totalBillByTypes) {
@@ -46,16 +40,6 @@ class BillInfo {
       y: totalBillByTypes[key],
       label: key,
     }));
-  }
-
-  progressBar(percentage) {
-    const billPercentage = $('#billPercentage');
-    const percentageText = $(billPercentage).find('span');
-    const percentageBar = $(billPercentage).find('.progress-bar');
-
-    percentageText.text(`${percentage}%`);
-    percentageBar.css('width', `${percentage}%`);
-    percentageBar.attr('aria-valuenow', percentage);
   }
 }
 
