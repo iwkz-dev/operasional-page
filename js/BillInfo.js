@@ -19,7 +19,7 @@ class BillInfo {
   }
 
   initBill() {
-    getBillData()
+    getBillData(currentMonthNumber, currentYear)
       .then(({ data: { data } }) => {
         this.updateData(data[0])
       })

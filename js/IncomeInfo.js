@@ -24,7 +24,7 @@ class IncomeInfo {
   }
 
   initIncome() {
-    getIncomeData()
+    getIncomeData(currentMonthNumber, currentYear)
       .then(({ data: { data } }) => {
         this.updateData(data[0]);
       })
