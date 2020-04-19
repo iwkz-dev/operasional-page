@@ -31,7 +31,7 @@ class IncomeInfo {
   }
 
   initMainIncomeAndProgressBar() {
-    getIncomePercentage()
+    getIncomePercentage(currentMonthNumber, currentYear)
       .then(({ data: { data } }) => {
         this.updateMainIncomeData(data[0]);
       });
