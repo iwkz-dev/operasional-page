@@ -1,0 +1,105 @@
+# SPA + Pre-compression configuration for IONOS shared hosting
+
+Options -MultiViews
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # --- Serve pre-compressed Brotli files ---
+  RewriteCond %{HTTP:Accept-Encoding} \bbr\b
+  RewriteCond %{REQUEST_FILENAME}\.br -f
+  RewriteRule (.+) $1.br [L,E=no-gzip:1]
+
+  # --- Serve pre-compressed Gzip files (fallback) ---
+  RewriteCond %{HTTP:Accept-Encoding} gzip
+  RewriteCond %{REQUEST_FILENAME}\.gz -f
+  RewriteRule (.+) $1.gz [L,E=no-gzip:1]
+
+  # Never rewrite SvelteKit build assets
+  RewriteRule ^_app/ - [L]
+
+  # Skip rewriting for existing files and directories
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Do not rewrite direct file requests (e.g. .js, .css, .png)
+  RewriteCond %{REQUEST_URI} \.[a-zA-Z0-9]{1,8}$ [NC]
+  RewriteRule ^ - [L]
+
+  # Rewrite route requests to index.html for SPA routing
+  RewriteRule ^ /index.html [L]
+</IfModule>
+
+# Headers for pre-compressed files and caching
+<IfModule mod_headers.c>
+  # Content-Encoding for Brotli files
+  <FilesMatch "\.br$">
+    Header set Content-Encoding "br"
+    Header append Vary "Accept-Encoding"
+  </FilesMatch>
+
+  # Content-Encoding for Gzip files
+  <FilesMatch "\.gz$">
+    Header set Content-Encoding "gzip"
+    Header append Vary "Accept-Encoding"
+  </FilesMatch>
+
+  # Correct MIME types for Brotli-compressed files
+  <FilesMatch "\.js\.br$">
+    ForceType application/javascript
+  </FilesMatch>
+  <FilesMatch "\.css\.br$">
+    ForceType text/css
+  </FilesMatch>
+  <FilesMatch "\.html\.br$">
+    ForceType text/html
+  </FilesMatch>
+  <FilesMatch "\.svg\.br$">
+    ForceType image/svg+xml
+  </FilesMatch>
+  <FilesMatch "\.json\.br$">
+    ForceType application/json
+  </FilesMatch>
+
+  # Correct MIME types for Gzip-compressed files
+  <FilesMatch "\.js\.gz$">
+    ForceType application/javascript
+  </FilesMatch>
+  <FilesMatch "\.css\.gz$">
+    ForceType text/css
+  </FilesMatch>
+  <FilesMatch "\.html\.gz$">
+    ForceType text/html
+  </FilesMatch>
+  <FilesMatch "\.svg\.gz$">
+    ForceType image/svg+xml
+  </FilesMatch>
+  <FilesMatch "\.json\.gz$">
+    ForceType application/json
+  </FilesMatch>
+
+  # Long-term cache for content-hashed immutable assets
+  <FilesMatch "\.[0-9a-f]{8,}\.(js|css)(\.br|\.gz)?$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # No cache for HTML (always fetch fresh)
+  <FilesMatch "\.html(\.br|\.gz)?$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+
+  # Basic security headers
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Ensure correct MIME types
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType application/json .json
+  AddType text/css .css
+  AddType image/svg+xml .svg
+</IfModule>
