@@ -45,6 +45,10 @@ export type CurrentOperationalDonationProgress = {
 	totalPrice: number;
 };
 
+export type CurrentPrsDonationProgress = {
+	currentDonation?: number;
+};
+
 export type JadwalShalat = {
 	date: string;
 	subuh: string;
@@ -65,6 +69,7 @@ export type DonationSocketPayload = {
 	finance?: {
 		operationalMonthlyReport?: OperationalMonthlyReport | null;
 		currentOperationalDonationProgress?: CurrentOperationalDonationProgress | null;
+		currentPrsDonationProgress?: CurrentPrsDonationProgress | null;
 	} | null;
 	todayJadwalShalat?: JadwalShalat | null;
 };

@@ -6,6 +6,7 @@ export { requestInitialDashboardUpdate } from './services/dashboard-api';
 export type {
 	ConnectionStatus,
 	CurrentOperationalDonationProgress,
+	CurrentPrsDonationProgress,
 	Donation,
 	DonationSocketPayload,
 	FinanceLedgerData,
