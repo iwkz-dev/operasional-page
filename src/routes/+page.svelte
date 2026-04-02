@@ -40,6 +40,7 @@
 	let totalIncome = $state(0);
 	let currentPrsDonation = $state<number | null>(null);
 	let toast = $state<ToastDonation | null>(null);
+	let prsToast = $state<ToastDonation | null>(null);
 	let donationPulse = $state(false);
 	let currentMonthIncome = $state<number | null>(null);
 
@@ -52,17 +53,32 @@
 	// let qrWrapper: HTMLDivElement | undefined;
 	let chartCanvas: HTMLCanvasElement | undefined;
 	let toastTimer: ReturnType<typeof setTimeout> | undefined;
+	let prsToastTimer: ReturnType<typeof setTimeout> | undefined;
 	let pulseTimer: ReturnType<typeof setTimeout> | undefined;
+	let clockTimer: ReturnType<typeof setInterval> | undefined;
 	let monthlyChart: Chart<'bar' | 'line'> | null = null;
 	// let qrResizeObserver: ResizeObserver | undefined;
 
 	const CURRENT_YEAR = new Date().getFullYear();
 	const CURRENT_MONTH_INDEX = new Date().getMonth();
 	const MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat('id-ID', { month: 'short' });
+	const CLOCK_TIME_FORMATTER = new Intl.DateTimeFormat('de-DE', {
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: false
+	});
+	const CLOCK_DATE_FORMATTER = new Intl.DateTimeFormat('de-DE', {
+		weekday: 'short',
+		day: '2-digit',
+		month: '2-digit',
+		year: 'numeric'
+	});
 	const EURO_NUMBER_FORMATTER = new Intl.NumberFormat('de-DE', {
 		minimumFractionDigits: 2,
 		maximumFractionDigits: 2
 	});
+	let currentTimeLabel = $state(CLOCK_TIME_FORMATTER.format(new Date()));
+	let currentDateLabel = $state(CLOCK_DATE_FORMATTER.format(new Date()));
 
 	const monthLabels = $derived(
 		Array.from({ length: CURRENT_MONTH_INDEX + 1 }, (_, index) =>
@@ -159,6 +175,28 @@
 		totalIncome = nextTotalIncome;
 	}
 
+	function updatePrsDonation(nextPrsDonation: number, shouldNotify = true) {
+		const nextAmount = Number(nextPrsDonation.toFixed(2));
+		const previousAmount = currentPrsDonation ?? 0;
+		const prsDelta = Number((nextAmount - previousAmount).toFixed(2));
+
+		currentPrsDonation = nextAmount;
+
+		if (!shouldNotify || prsDelta <= 0) {
+			return;
+		}
+
+		prsToast = {
+			id: Date.now(),
+			amount: prsDelta
+		};
+
+		if (prsToastTimer) clearTimeout(prsToastTimer);
+		prsToastTimer = setTimeout(() => {
+			prsToast = null;
+		}, 4200);
+	}
+
 	function simulateDonation() {
 		const amount = Number((Math.random() * (130 - 15) + 15).toFixed(2));
 		updateDonationProgress({
@@ -187,10 +225,21 @@
 		return `${EURO_NUMBER_FORMATTER.format(value)} €`;
 	}
 
+	function updateCurrentTimeLabel() {
+		const now = new Date();
+		currentTimeLabel = CLOCK_TIME_FORMATTER.format(now);
+		currentDateLabel = CLOCK_DATE_FORMATTER.format(now);
+	}
+
 	onMount(() => {
+		updateCurrentTimeLabel();
+		clockTimer = setInterval(updateCurrentTimeLabel, 1000);
+
 		if (!chartCanvas) {
 			status = 'Disconnected';
-			return;
+			return () => {
+				if (clockTimer) clearInterval(clockTimer);
+			};
 		}
 
 		createOrUpdateChart();
@@ -225,7 +274,7 @@
 
 			const nextPrsDonation = payload.finance?.currentPrsDonationProgress?.currentDonation;
 			if (nextPrsDonation !== undefined && Number.isFinite(nextPrsDonation)) {
-				currentPrsDonation = Number(nextPrsDonation.toFixed(2));
+				updatePrsDonation(nextPrsDonation, hasReceivedInitialPayload);
 			}
 
 			monthlyLedgerSeries = getMonthlyTotalsByLedger(
@@ -246,7 +295,9 @@
 		return () => {
 			socket.disconnect();
 			// if (qrResizeObserver) qrResizeObserver.disconnect();
+			if (clockTimer) clearInterval(clockTimer);
 			if (toastTimer) clearTimeout(toastTimer);
+			if (prsToastTimer) clearTimeout(prsToastTimer);
 			if (pulseTimer) clearTimeout(pulseTimer);
 			if (monthlyChart) {
 				monthlyChart.destroy();
@@ -378,6 +429,18 @@
 		</div>
 	{/if}
 
+	{#if prsToast}
+		<div
+			class="fixed top-[4.9rem] left-1/2 z-20 w-[min(92vw,520px)] -translate-x-1/2 rounded-xl bg-emerald-800/95 px-3 py-2.5 text-center text-emerald-50 shadow-[0_14px_32px_rgba(6,95,70,0.42)] motion-safe:animate-pulse sm:top-[5.6rem] sm:px-4 sm:py-3"
+			role="status"
+			aria-live="polite"
+		>
+			<p class="mb-1 text-2xl leading-none font-extrabold">+ {euro(prsToast.amount)}</p>
+			<p class="text-[1rem] font-bold">Donasi PRS baru diterima</p>
+			<p class="mt-1 text-[0.8rem] opacity-90">Neue PRS-Spende ist eingegangen.</p>
+		</div>
+	{/if}
+
 	<button
 		class="fixed bottom-2 left-2 z-20 cursor-pointer rounded-xl bg-green-900 px-2.5 py-2 text-sm font-bold text-green-50 shadow-[0_12px_24px_rgba(20,83,45,0.28)] transition-transform hover:-translate-y-0.5 sm:bottom-3 sm:left-3 sm:px-3 sm:py-2.5"
 		onclick={simulateDonation}
@@ -392,6 +455,12 @@
 		{#if todayJadwalShalat}
 			<p class="mb-1.5 text-[0.82rem] font-bold tracking-wide text-green-800 uppercase">
 				Waktu Shalat
+			</p>
+			<p class="mb-2 text-[1.1rem] leading-none font-extrabold tracking-[0.02em] text-green-950">
+				{currentTimeLabel}
+			</p>
+			<p class="mb-2.5 text-[0.72rem] font-semibold tracking-wide text-green-900/70">
+				{currentDateLabel}
 			</p>
 			<div class="mb-2.5 grid w-full grid-cols-2 gap-x-2 gap-y-1 text-left">
 				<span class="text-[0.82rem] text-green-900/65">Subuh</span><span
