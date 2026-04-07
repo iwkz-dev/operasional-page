@@ -95,11 +95,6 @@
 	const activeChartTitle = $derived(
 		activeChartMode === 'operational' ? 'Donasi Operasional Bulanan' : 'Donasi PRS Bulanan'
 	);
-	const activeChartDescription = $derived(
-		activeChartMode === 'operational'
-			? 'Pemasukan & pengeluaran operasional dari Januari hingga bulan ini (€)'
-			: 'Pemasukan & pengeluaran PRS dari Januari hingga bulan ini (€)'
-	);
 	const activeChartSubtitle = $derived(
 		activeChartMode === 'operational'
 			? 'Operative Einnahmen & Ausgaben von Januar bis heute'
@@ -194,13 +189,6 @@
 		prsToastTimer = setTimeout(() => {
 			prsToast = null;
 		}, 4200);
-	}
-
-	function simulateDonation() {
-		const amount = Number((Math.random() * (130 - 15) + 15).toFixed(2));
-		updateDonationProgress({
-			totalPrice: Number((totalIncome + amount).toFixed(2))
-		});
 	}
 
 	function updateCurrentTimeLabel() {
@@ -298,95 +286,95 @@
 	/>
 </svelte:head>
 
+<!-- Subtle background -->
 <div
-	class="pointer-events-none fixed inset-0 -z-20 bg-[radial-gradient(circle_at_15%_20%,rgba(134,239,172,0.45),transparent_35%),radial-gradient(circle_at_85%_8%,rgba(110,231,183,0.28),transparent_30%),linear-gradient(135deg,#f7fee7_0%,#ecfdf3_54%,#f0fdf4_100%)]"
-></div>
-<div
-	class="pointer-events-none fixed inset-0 -z-10 bg-[linear-gradient(to_right,rgba(22,163,74,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(22,163,74,0.08)_1px,transparent_1px)] bg-size-[26px_26px] opacity-35"
+	class="pointer-events-none fixed inset-0 -z-20 bg-linear-to-br from-green-50 via-emerald-50/60 to-white"
 ></div>
 
 <main
-	class="mx-auto flex min-h-dvh w-full max-w-355 flex-col gap-3 overflow-x-hidden px-3 pt-3 pb-20 font-[Manrope,Plus_Jakarta_Sans,Segoe_UI,sans-serif] text-green-950 sm:px-5 sm:pt-4 md:grid md:h-dvh md:grid-cols-[minmax(0,1fr)_16rem] md:grid-rows-[auto_minmax(0,1fr)] md:overflow-y-auto md:pb-5"
+	class="mx-auto flex min-h-dvh w-full max-w-400 flex-col gap-3 px-3 pt-3 pb-4 font-[Manrope,Plus_Jakarta_Sans,Segoe_UI,sans-serif] text-green-950 sm:gap-4 sm:px-5 sm:pt-4 lg:grid lg:h-dvh lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_18rem] lg:grid-rows-[auto_minmax(0,1fr)] lg:overflow-hidden lg:pb-4 xl:grid-cols-[minmax(0,1fr)_20rem]"
 >
-	<header class="flex flex-col gap-2.5 md:col-span-2 md:flex-row md:items-start md:justify-between">
-		<div>
-			<div class="mb-2 inline-flex items-center gap-2 py-1">
-				<img src={iwkzLogo} alt="IWKZ logo" class="h-8 w-auto rounded-md sm:h-9" loading="eager" />
-				<span class="text-[0.72rem] font-bold tracking-[0.16em] text-green-700 uppercase">IWKZ</span
-				>
+	<!-- Header — spans both columns on lg -->
+	<header class="flex items-center justify-between gap-3 lg:col-span-2">
+		<div class="flex items-center gap-2.5">
+			<img src={iwkzLogo} alt="IWKZ logo" class="h-8 w-auto rounded-lg sm:h-9" loading="eager" />
+			<div class="leading-tight">
+				<p class="text-[0.92rem] font-extrabold tracking-tight sm:text-[1.05rem]">
+					Dashboard Donasi
+				</p>
+				<p class="text-[0.62rem] font-medium text-green-800/60">Live-Operativspenden IWKZ</p>
 			</div>
-			<h1 class="text-[clamp(1.9rem,4vw,3.2rem)] leading-[1.02] font-extrabold tracking-[-0.03em]">
-				Donasi Operasional IWKZ
-				<small class="mt-1.5 block text-[0.34em] font-semibold tracking-normal text-green-800"
-					>Live-Operativspenden fur IWKZ</small
-				>
-			</h1>
 		</div>
 		<div
-			class={`rounded-full border px-3 py-1.5 text-sm font-bold shadow-[0_10px_24px_rgba(21,128,61,0.12)] ${
-				status === 'Connected'
-					? 'border-green-700/20 bg-green-100/95 text-green-900'
-					: 'border-green-900/15 bg-white/80 text-green-900'
-			}`}
+			class="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold {status ===
+			'Connected'
+				? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+				: 'border-green-200 bg-white text-green-600'}"
 		>
+			<span
+				class="inline-block size-1.5 rounded-full {status === 'Connected'
+					? 'bg-emerald-500'
+					: 'bg-green-400'}"
+			></span>
 			{status}
 		</div>
 	</header>
 
-	<section class="grid min-h-0 grid-cols-1 gap-3">
+	<!-- Left column: KPI row + chart -->
+	<section class="flex min-h-0 flex-col gap-3 sm:gap-4">
+		<!-- KPI cards -->
+		<div class="grid grid-cols-2 gap-2.5 sm:gap-3">
+			<div
+				class="rounded-2xl border border-emerald-100 bg-white/80 px-3.5 py-3 shadow-sm backdrop-blur-sm sm:px-4 sm:py-3.5"
+			>
+				<p class="mb-1 text-[0.58rem] font-bold tracking-widest text-emerald-600 uppercase">
+					Operasional
+				</p>
+				<p
+					class="text-[clamp(1.1rem,2.5vw,1.5rem)] leading-none font-extrabold tracking-tight text-emerald-950"
+				>
+					{euro(totalIncome)}
+				</p>
+				<p class="mt-1 text-[0.58rem] font-medium text-emerald-700/60">
+					Bulan ini &middot; Diesen Monat
+				</p>
+			</div>
+			<div
+				class="rounded-2xl border border-green-100 bg-white/80 px-3.5 py-3 shadow-sm backdrop-blur-sm sm:px-4 sm:py-3.5"
+			>
+				<p class="mb-1 text-[0.58rem] font-bold tracking-widest text-green-600 uppercase">PRS</p>
+				<p
+					class="text-[clamp(1rem,2.5vw,1.35rem)] leading-none font-extrabold tracking-tight text-green-950"
+				>
+					{#if currentPrsDonation !== null}
+						{euroSimple(currentPrsDonation)}
+					{:else}
+						&ndash;
+					{/if}
+					<span class="text-[0.55em] font-semibold text-green-700/60"
+						>/ {euroSimple(PRS_DONATION_TARGET)}</span
+					>
+				</p>
+				<p class="mt-1 text-[0.58rem] font-medium text-green-700/60">Aktuelle PRS-Spende</p>
+			</div>
+		</div>
+
+		<!-- Chart card -->
 		<article
-			class={`grid min-h-0 grid-rows-[auto_minmax(0,1fr)] rounded-[22px] border border-green-600/20 bg-white/88 p-3 shadow-[0_20px_40px_rgba(22,101,52,0.13)] backdrop-blur-xl transition-transform duration-300 sm:p-4 ${donationPulse ? 'scale-[1.01]' : 'scale-100'}`}
+			class="flex min-h-0 flex-1 flex-col rounded-2xl border border-green-100 bg-white/80 shadow-sm backdrop-blur-sm transition-transform duration-300 {donationPulse
+				? 'scale-[1.005]'
+				: 'scale-100'}"
 		>
-			<div class="flex flex-wrap items-start justify-between gap-2.5">
+			<div class="flex items-baseline justify-between gap-2 px-4 pt-3.5 pb-1 sm:pt-4">
 				<div>
-					<h3 class="text-[1.2rem] font-bold tracking-[-0.01em]">{activeChartTitle}</h3>
-					<p class="mt-1 text-[0.86rem] text-green-900/75">
-						{activeChartDescription}
-					</p>
-					<small class="mt-0.5 block text-[0.72rem] text-green-900/60">{activeChartSubtitle}</small>
-				</div>
-				<div class="grid grid-cols-1 gap-2.5 px-1 py-1 text-left sm:grid-cols-2 sm:gap-3">
-					<div class="px-3 py-2.5">
-						<p
-							class="inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-[0.58rem] font-bold tracking-[0.08em] text-emerald-800 uppercase"
-						>
-							Bulan Ini
-						</p>
-						<p class="mt-1 text-[0.68rem] font-semibold text-emerald-900/80">
-							Donasi Operasional Masuk
-						</p>
-						<p class="mt-0.5 text-[1.08rem] font-extrabold tracking-[-0.02em] text-emerald-950">
-							{euro(totalIncome)}
-						</p>
-						<small class="text-[0.62rem] text-emerald-900/60"
-							>Operativ gesamt eingehend diesen Monat</small
-						>
-					</div>
-					<div class="px-3 py-2.5">
-						<p
-							class="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-[0.58rem] font-bold tracking-[0.08em] text-green-800 uppercase"
-						>
-							PRS
-						</p>
-						<p class="mt-1 text-[0.68rem] font-semibold text-green-900/80">Donasi PRS Saat Ini</p>
-						<p class="mt-0.5 text-[0.98rem] font-extrabold tracking-[-0.02em] text-green-950">
-							{#if currentPrsDonation !== null}
-								{euroSimple(currentPrsDonation)}
-							{:else}
-								-
-							{/if}<span class="text-[0.72em] font-semibold text-green-900/75"
-								>/{euroSimple(PRS_DONATION_TARGET)}</span
-							>
-						</p>
-						<small class="text-[0.62rem] text-green-900/60">Aktuelle PRS-Spende</small>
-					</div>
+					<h3 class="text-[0.88rem] font-bold tracking-tight sm:text-[0.95rem]">
+						{activeChartTitle}
+					</h3>
+					<p class="mt-0.5 text-[0.62rem] text-green-800/55">{activeChartSubtitle}</p>
 				</div>
 			</div>
-
-			<div
-				class="mt-2 min-h-0 overflow-hidden rounded-xl border border-emerald-600/10 bg-linear-to-b from-emerald-50/75 to-white p-2"
-			>
-				<div class="h-[clamp(300px,52vh,460px)] w-full">
+			<div class="min-h-0 flex-1 px-3 pb-3 sm:px-4 sm:pb-4">
+				<div class="h-full min-h-55 w-full sm:min-h-70">
 					<canvas
 						class="h-full w-full"
 						bind:this={chartCanvas}
@@ -397,11 +385,19 @@
 		</article>
 	</section>
 
+	<!-- Right column: prayer + QR — stacks below chart on mobile -->
+	<PrayerTimesWidget
+		jadwalShalat={todayJadwalShalat}
+		timeLabel={currentTimeLabel}
+		dateLabel={currentDateLabel}
+	/>
+
+	<!-- Toasts -->
 	{#if toast}
 		<DonationToast
 			amount={toast.amount}
 			title="Jazaakumullahu khairan atas donasinya"
-			subtitle="Moge Allah es Ihnen vielfach vergelten."
+			subtitle="Möge Allah es Ihnen vielfach vergelten."
 			variant="operational"
 		/>
 	{/if}
@@ -414,10 +410,4 @@
 			variant="prs"
 		/>
 	{/if}
-
-	<PrayerTimesWidget
-		jadwalShalat={todayJadwalShalat}
-		timeLabel={currentTimeLabel}
-		dateLabel={currentDateLabel}
-	/>
 </main>

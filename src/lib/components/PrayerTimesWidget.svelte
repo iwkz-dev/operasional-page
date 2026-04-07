@@ -51,33 +51,34 @@
 </script>
 
 {#if jadwalShalat}
-	<aside class="flex w-full flex-col gap-3 self-start">
+	<aside
+		class="flex w-full flex-col gap-3 self-start sm:flex-row sm:gap-3 lg:flex-col lg:overflow-y-auto"
+	>
 		<!-- Clock + Prayer Times -->
 		<div
-			class="rounded-2xl border border-green-600/12 bg-white/85 p-4 shadow-[0_8px_24px_rgba(22,101,52,0.10)] backdrop-blur-lg"
+			class="flex-1 rounded-2xl border border-green-100 bg-white/80 p-3.5 shadow-sm backdrop-blur-sm sm:p-4"
 		>
-			<div class="mb-3 flex items-baseline justify-between">
-				<p
-					class="text-[0.65rem] font-bold tracking-[0.14em] text-green-700/80 uppercase select-none"
-				>
+			<div class="mb-2.5 flex items-baseline justify-between">
+				<p class="text-[0.6rem] font-bold tracking-[0.14em] text-green-600 uppercase select-none">
 					Waktu Shalat
 				</p>
-				<p class="text-[0.65rem] font-medium text-green-900/50">{dateLabel}</p>
+				<p class="text-[0.58rem] font-medium text-green-800/45">{dateLabel}</p>
 			</div>
 
 			<p
-				class="mb-4 text-center text-[2rem] leading-none font-extrabold tracking-tight text-green-950"
+				class="mb-3 text-center text-[1.75rem] leading-none font-extrabold tracking-tight text-green-950 sm:text-[2rem]"
 			>
 				{timeLabel}
 			</p>
 
-			<div class="grid grid-cols-3 gap-2">
+			<div class="grid grid-cols-3 gap-1.5 sm:gap-2">
 				{#each PRAYER_ROWS as { label, key } (key)}
-					<div
-						class="flex flex-col items-center rounded-lg bg-green-50/70 px-1 py-2 transition-colors"
-					>
-						<span class="text-[0.6rem] font-medium text-green-800/60 uppercase">{label}</span>
-						<span class="mt-0.5 text-[0.92rem] leading-none font-bold text-green-950"
+					<div class="flex flex-col items-center rounded-xl bg-green-50/60 px-1 py-1.5 sm:py-2">
+						<span class="text-[0.52rem] font-semibold text-green-700/50 uppercase sm:text-[0.58rem]"
+							>{label}</span
+						>
+						<span
+							class="mt-0.5 text-[0.82rem] leading-none font-bold text-green-950 sm:text-[0.92rem]"
 							>{jadwalShalat[key]}</span
 						>
 					</div>
@@ -87,31 +88,39 @@
 
 		<!-- Donation QR Codes -->
 		<div
-			class="rounded-2xl border border-green-600/12 bg-white/85 p-4 shadow-[0_8px_24px_rgba(22,101,52,0.10)] backdrop-blur-lg"
+			class="flex-1 rounded-2xl border border-green-100 bg-white/80 p-3.5 shadow-sm backdrop-blur-sm sm:p-4"
 		>
 			<p
-				class="mb-3 text-[0.65rem] font-bold tracking-[0.14em] text-green-700/80 uppercase select-none"
+				class="mb-2.5 text-[0.6rem] font-bold tracking-[0.14em] text-green-600 uppercase select-none"
 			>
 				Donasi / Spenden
 			</p>
 
-			<div class="flex flex-col gap-4">
+			<div class="flex flex-col gap-3">
 				{#each DONATION_LINKS as { title, url, displayUrl } (url)}
 					<div class="flex items-center gap-3">
 						<div class="shrink-0">
 							{#if qrDataUrls[url]}
-								<img src={qrDataUrls[url]} alt="QR {title}" class="size-20 rounded-lg" />
+								<img
+									src={qrDataUrls[url]}
+									alt="QR {title}"
+									class="size-16 rounded-lg sm:size-[4.5rem]"
+								/>
 							{:else}
-								<div class="flex size-20 items-center justify-center rounded-lg bg-green-50/80">
-									<span class="text-[0.55rem] text-green-800/40">...</span>
+								<div
+									class="flex size-16 items-center justify-center rounded-lg bg-green-50/60 sm:size-[4.5rem]"
+								>
+									<span class="text-[0.5rem] text-green-700/35">...</span>
 								</div>
 							{/if}
 						</div>
 						<div class="min-w-0">
-							<p class="text-[0.78rem] leading-tight font-bold text-green-950">
+							<p class="text-[0.72rem] leading-tight font-bold text-green-950 sm:text-[0.78rem]">
 								{title}
 							</p>
-							<p class="mt-1 text-[0.68rem] leading-snug font-medium text-emerald-700/80">
+							<p
+								class="mt-0.5 text-[0.62rem] leading-snug font-medium text-emerald-600/70 sm:text-[0.66rem]"
+							>
 								{displayUrl}
 							</p>
 						</div>

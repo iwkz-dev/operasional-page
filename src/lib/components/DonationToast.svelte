@@ -12,19 +12,21 @@
 
 	const variantStyles = {
 		operational:
-			'top-2.5 bg-green-700/95 text-green-50 shadow-[0_14px_32px_rgba(20,83,45,0.42)] sm:top-4',
-		prs: 'top-[4.9rem] bg-emerald-800/95 text-emerald-50 shadow-[0_14px_32px_rgba(6,95,70,0.42)] sm:top-[5.6rem]'
+			'top-3 bg-emerald-600 text-white shadow-[0_12px_40px_rgba(16,185,129,0.35)] sm:top-4',
+		prs: 'top-[4.5rem] bg-green-700 text-white shadow-[0_12px_40px_rgba(22,163,74,0.35)] sm:top-[5.2rem]'
 	};
 </script>
 
 <div
-	class="fixed left-1/2 z-20 w-[min(92vw,520px)] -translate-x-1/2 rounded-xl px-3 py-2.5 text-center motion-safe:animate-pulse sm:px-4 sm:py-3 {variantStyles[
+	class="fixed left-1/2 z-30 w-[min(90vw,420px)] -translate-x-1/2 rounded-2xl px-4 py-3 text-center backdrop-blur-sm sm:px-5 sm:py-3.5 {variantStyles[
 		variant
 	]}"
 	role="status"
 	aria-live="polite"
 >
-	<p class="mb-1 text-2xl leading-none font-extrabold">+ {euro(amount)}</p>
-	<p class="text-[1rem] font-bold">{title}</p>
-	<p class="mt-1 text-[0.8rem] opacity-90">{subtitle}</p>
+	<p class="text-[1.5rem] leading-none font-extrabold tracking-tight sm:text-[1.75rem]">
+		+ {euro(amount)}
+	</p>
+	<p class="mt-1.5 text-[0.82rem] font-semibold opacity-95">{title}</p>
+	<p class="mt-0.5 text-[0.68rem] font-medium opacity-75">{subtitle}</p>
 </div>
