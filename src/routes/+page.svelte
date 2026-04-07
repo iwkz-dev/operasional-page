@@ -306,9 +306,9 @@
 ></div>
 
 <main
-	class="mx-auto grid h-dvh w-full max-w-355 grid-rows-[auto_minmax(0,1fr)] overflow-x-hidden overflow-y-auto px-3 pt-3 pb-14 font-[Manrope,Plus_Jakarta_Sans,Segoe_UI,sans-serif] text-green-950 sm:px-5 sm:pt-4 sm:pb-14"
+	class="mx-auto flex min-h-dvh w-full max-w-355 flex-col gap-3 overflow-x-hidden px-3 pt-3 pb-20 font-[Manrope,Plus_Jakarta_Sans,Segoe_UI,sans-serif] text-green-950 sm:px-5 sm:pt-4 md:grid md:h-dvh md:grid-cols-[minmax(0,1fr)_16rem] md:grid-rows-[auto_minmax(0,1fr)] md:overflow-y-auto md:pb-5"
 >
-	<header class="mb-3 flex flex-col gap-2.5 md:flex-row md:items-start md:justify-between">
+	<header class="flex flex-col gap-2.5 md:col-span-2 md:flex-row md:items-start md:justify-between">
 		<div>
 			<div class="mb-2 inline-flex items-center gap-2 py-1">
 				<img src={iwkzLogo} alt="IWKZ logo" class="h-8 w-auto rounded-md sm:h-9" loading="eager" />
@@ -414,14 +414,6 @@
 			variant="prs"
 		/>
 	{/if}
-
-	<button
-		class="fixed bottom-2 left-2 z-20 cursor-pointer rounded-xl bg-green-900 px-2.5 py-2 text-sm font-bold text-green-50 shadow-[0_12px_24px_rgba(20,83,45,0.28)] transition-transform hover:-translate-y-0.5 sm:bottom-3 sm:left-3 sm:px-3 sm:py-2.5"
-		onclick={simulateDonation}
-	>
-		Simulasi Donasi
-		<small class="mt-0.5 block text-[0.7rem] font-medium opacity-90">Debug eingehend</small>
-	</button>
 
 	<PrayerTimesWidget
 		jadwalShalat={todayJadwalShalat}
