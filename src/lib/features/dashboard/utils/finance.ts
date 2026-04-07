@@ -1,4 +1,44 @@
-import type { MonthlyLedgerSeries, OperationalMonthlyReport } from '../types';
+import type { MonthlyLedgerSeries, MonthlyFlowDataset, OperationalMonthlyReport } from '../types';
+
+export function buildMonthDatasets(
+	monthlySeries: MonthlyLedgerSeries[],
+	currentMonthIndex: number,
+	overrideCurrentMonthInflow: number | null = null
+): MonthlyFlowDataset[] {
+	const monthCount = currentMonthIndex + 1;
+	const inflowValues = Array.from({ length: monthCount }, () => 0);
+	const outflowValues = Array.from({ length: monthCount }, () => 0);
+
+	for (const series of monthlySeries) {
+		for (let monthIndex = 0; monthIndex < monthCount; monthIndex += 1) {
+			const value = Math.abs(series.values[monthIndex] ?? 0);
+			if (series.flow === 'inflow') {
+				inflowValues[monthIndex] += value;
+			} else {
+				outflowValues[monthIndex] += value;
+			}
+		}
+	}
+
+	if (overrideCurrentMonthInflow !== null) {
+		inflowValues[currentMonthIndex] = Number(overrideCurrentMonthInflow.toFixed(2));
+	}
+
+	return [
+		{
+			label: 'Inflow',
+			ledgerId: 1,
+			flow: 'inflow',
+			values: inflowValues.map((v) => Number(v.toFixed(2)))
+		},
+		{
+			label: 'Outflow',
+			ledgerId: 2,
+			flow: 'outflow',
+			values: outflowValues.map((v) => Number(v.toFixed(2)))
+		}
+	];
+}
 
 export function createEmptyMonthlyTotals() {
 	return Array.from({ length: 12 }, () => 0);

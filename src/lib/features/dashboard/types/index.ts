@@ -39,6 +39,17 @@ export type MonthlyLedgerSeries = {
 	values: number[];
 };
 
+export type MonthlyFlowDataset = {
+	label: string;
+	ledgerId: number;
+	flow: 'inflow' | 'outflow';
+	values: number[];
+};
+
+export type ChartMode = 'operational' | 'prs';
+
+export const CHART_MODES: ChartMode[] = ['operational', 'prs'];
+
 export type CurrentOperationalDonationProgress = {
 	totalOrder?: number;
 	totalOrders?: number;
@@ -68,6 +79,7 @@ export type JadwalShalat = {
 export type DonationSocketPayload = {
 	finance?: {
 		operationalMonthlyReport?: OperationalMonthlyReport | null;
+		prsMonthlyReport?: OperationalMonthlyReport | null;
 		currentOperationalDonationProgress?: CurrentOperationalDonationProgress | null;
 		currentPrsDonationProgress?: CurrentPrsDonationProgress | null;
 	} | null;

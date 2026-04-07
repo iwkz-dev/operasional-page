@@ -4,6 +4,7 @@ export {
 } from './chart/monthly-donation-chart';
 export { requestInitialDashboardUpdate } from './services/dashboard-api';
 export type {
+	ChartMode,
 	ConnectionStatus,
 	CurrentOperationalDonationProgress,
 	CurrentPrsDonationProgress,
@@ -12,9 +13,16 @@ export type {
 	FinanceLedgerData,
 	FinanceMonthlyData,
 	JadwalShalat,
+	MonthlyFlowDataset,
 	MonthlyLedgerSeries,
 	OperationalMonthlyReport,
 	ToastDonation
 } from './types';
-export { createEmptyMonthlyTotals, getMonthlyTotalsByLedger, toTimestamp } from './utils/finance';
-export { euro, euroCompact, exactHourLabel } from './utils/format';
+export { CHART_MODES } from './types';
+export {
+	buildMonthDatasets,
+	createEmptyMonthlyTotals,
+	getMonthlyTotalsByLedger,
+	toTimestamp
+} from './utils/finance';
+export { euro, euroCompact, euroSimple, exactHourLabel } from './utils/format';

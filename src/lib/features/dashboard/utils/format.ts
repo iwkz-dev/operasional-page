@@ -24,6 +24,15 @@ export function euroCompact(amount: number) {
 	return euroCompactFormatter.format(amount);
 }
 
+const euroSimpleFormatter = new Intl.NumberFormat('de-DE', {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2
+});
+
+export function euroSimple(amount: number) {
+	return `${euroSimpleFormatter.format(amount)} €`;
+}
+
 export function exactHourLabel(timestamp: number) {
 	return hourFormatter.format(new Date(timestamp));
 }

@@ -6,14 +6,18 @@
 		PUBLIC_STRAPI_URL
 	} from '$env/static/public';
 	import {
+		buildMonthDatasets,
+		CHART_MODES,
 		euro,
 		euroCompact,
+		euroSimple,
 		getMonthlyTotalsByLedger,
 		registerMonthlyDonationChart,
 		renderMonthlyDonationChart,
 		requestInitialDashboardUpdate
 	} from '$lib/features/dashboard';
 	import type {
+		ChartMode,
 		ConnectionStatus,
 		CurrentOperationalDonationProgress,
 		DonationSocketPayload,
@@ -21,17 +25,15 @@
 		MonthlyLedgerSeries,
 		ToastDonation
 	} from '$lib/features/dashboard';
+	import DonationToast from '$lib/components/DonationToast.svelte';
+	import PrayerTimesWidget from '$lib/components/PrayerTimesWidget.svelte';
 	import iwkzLogo from '$lib/assets/iwkz-logo.png';
 	import { Chart } from 'chart.js/auto';
-	// import QRCode from 'qrcode';
 	import { io } from 'socket.io-client';
 
 	const STRAPI_URL = PUBLIC_STRAPI_URL || 'http://api.iwkz.de/';
 	const EVENT_NAME = PUBLIC_SOCKET_EVENT_NAME || 'info_iwkz';
 	const SOCKET_TOKEN = PUBLIC_SOCKET_TOKEN || '';
-	// TODO: Re-enable when two PayPal QR codes are available:
-	// 1) Operational Donation 2) PRS Donation.
-	// const DONATION_URL = PUBLIC_DONATION_URL || 'https://paypal.me/your-link';
 	const PRS_DONATION_TARGET = 1000000;
 
 	registerMonthlyDonationChart();
@@ -44,20 +46,19 @@
 	let donationPulse = $state(false);
 	let currentMonthIncome = $state<number | null>(null);
 
-	let monthlyLedgerSeries = $state<MonthlyLedgerSeries[]>([]);
+	let operationalMonthlyLedgerSeries = $state<MonthlyLedgerSeries[]>([]);
+	let prsMonthlyLedgerSeries = $state<MonthlyLedgerSeries[]>([]);
 	let todayJadwalShalat = $state<JadwalShalat | null>(null);
 	let hasReceivedInitialPayload = $state(false);
+	let activeChartMode = $state<ChartMode>('operational');
 
-	// TODO: Re-enable when adding two QR canvases (operational + PRS).
-	// let qrCanvas: HTMLCanvasElement | undefined;
-	// let qrWrapper: HTMLDivElement | undefined;
 	let chartCanvas: HTMLCanvasElement | undefined;
 	let toastTimer: ReturnType<typeof setTimeout> | undefined;
 	let prsToastTimer: ReturnType<typeof setTimeout> | undefined;
 	let pulseTimer: ReturnType<typeof setTimeout> | undefined;
 	let clockTimer: ReturnType<typeof setInterval> | undefined;
+	let chartCarouselTimer: ReturnType<typeof setInterval> | undefined;
 	let monthlyChart: Chart<'bar' | 'line'> | null = null;
-	// let qrResizeObserver: ResizeObserver | undefined;
 
 	const CURRENT_YEAR = new Date().getFullYear();
 	const CURRENT_MONTH_INDEX = new Date().getMonth();
@@ -73,10 +74,6 @@
 		month: '2-digit',
 		year: 'numeric'
 	});
-	const EURO_NUMBER_FORMATTER = new Intl.NumberFormat('de-DE', {
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2
-	});
 	let currentTimeLabel = $state(CLOCK_TIME_FORMATTER.format(new Date()));
 	let currentDateLabel = $state(CLOCK_DATE_FORMATTER.format(new Date()));
 
@@ -86,50 +83,52 @@
 		)
 	);
 
-	const monthDatasets = $derived.by(() => {
-		const monthCount = CURRENT_MONTH_INDEX + 1;
-		const inflowValues = Array.from({ length: monthCount }, () => 0);
-		const outflowValues = Array.from({ length: monthCount }, () => 0);
-
-		for (const series of monthlyLedgerSeries) {
-			for (let monthIndex = 0; monthIndex < monthCount; monthIndex += 1) {
-				const value = Math.abs(series.values[monthIndex] ?? 0);
-				if (series.flow === 'inflow') {
-					inflowValues[monthIndex] += value;
-				} else {
-					outflowValues[monthIndex] += value;
-				}
-			}
-		}
-
-		if (currentMonthIncome !== null) {
-			inflowValues[CURRENT_MONTH_INDEX] = Number(currentMonthIncome.toFixed(2));
-		}
-
-		return [
-			{
-				label: 'Inflow',
-				ledgerId: 1,
-				flow: 'inflow' as const,
-				values: inflowValues.map((value) => Number(value.toFixed(2)))
-			},
-			{
-				label: 'Outflow',
-				ledgerId: 2,
-				flow: 'outflow' as const,
-				values: outflowValues.map((value) => Number(value.toFixed(2)))
-			}
-		];
-	});
+	const operationalMonthDatasets = $derived.by(() =>
+		buildMonthDatasets(operationalMonthlyLedgerSeries, CURRENT_MONTH_INDEX, currentMonthIncome)
+	);
+	const prsMonthDatasets = $derived.by(() =>
+		buildMonthDatasets(prsMonthlyLedgerSeries, CURRENT_MONTH_INDEX)
+	);
+	const activeMonthDatasets = $derived.by(() =>
+		activeChartMode === 'operational' ? operationalMonthDatasets : prsMonthDatasets
+	);
+	const activeChartTitle = $derived(
+		activeChartMode === 'operational' ? 'Donasi Operasional Bulanan' : 'Donasi PRS Bulanan'
+	);
+	const activeChartDescription = $derived(
+		activeChartMode === 'operational'
+			? 'Pemasukan & pengeluaran operasional dari Januari hingga bulan ini (€)'
+			: 'Pemasukan & pengeluaran PRS dari Januari hingga bulan ini (€)'
+	);
+	const activeChartSubtitle = $derived(
+		activeChartMode === 'operational'
+			? 'Operative Einnahmen & Ausgaben von Januar bis heute'
+			: 'PRS Einnahmen & Ausgaben von Januar bis heute'
+	);
 
 	function createOrUpdateChart() {
 		monthlyChart = renderMonthlyDonationChart({
 			chart: monthlyChart,
 			canvas: chartCanvas,
 			labels: [...monthLabels],
-			datasets: [...monthDatasets],
+			datasets: [...activeMonthDatasets],
 			formatCompactValue: euroCompact
 		});
+	}
+
+	function setChartMode(mode: ChartMode) {
+		if (activeChartMode === mode) {
+			return;
+		}
+
+		activeChartMode = mode;
+		createOrUpdateChart();
+	}
+
+	function showNextChart() {
+		const currentIndex = CHART_MODES.indexOf(activeChartMode);
+		const nextIndex = (currentIndex + 1) % CHART_MODES.length;
+		setChartMode(CHART_MODES[nextIndex]);
 	}
 
 	function updateDonationProgress(progress: CurrentOperationalDonationProgress | null | undefined) {
@@ -204,27 +203,6 @@
 		});
 	}
 
-	// function renderQrCode() {
-	// 	if (!qrCanvas || !qrWrapper) {
-	// 		return;
-	// 	}
-
-	// 	const qrWidth = Math.max(96, Math.floor(qrWrapper.clientWidth));
-
-	// 	void QRCode.toCanvas(qrCanvas, DONATION_URL, {
-	// 		margin: 1,
-	// 		width: qrWidth,
-	// 		color: {
-	// 			dark: '#14532d',
-	// 			light: '#f0fdf4'
-	// 		}
-	// 	});
-	// }
-
-	function formatSimpleEuro(value: number) {
-		return `${EURO_NUMBER_FORMATTER.format(value)} €`;
-	}
-
 	function updateCurrentTimeLabel() {
 		const now = new Date();
 		currentTimeLabel = CLOCK_TIME_FORMATTER.format(now);
@@ -243,7 +221,7 @@
 		}
 
 		createOrUpdateChart();
-		// TODO: Re-enable QR rendering & resize observer when both QR codes are provided.
+		chartCarouselTimer = setInterval(showNextChart, 10000);
 
 		const socket = io(STRAPI_URL, {
 			auth: {
@@ -277,8 +255,12 @@
 				updatePrsDonation(nextPrsDonation, hasReceivedInitialPayload);
 			}
 
-			monthlyLedgerSeries = getMonthlyTotalsByLedger(
+			operationalMonthlyLedgerSeries = getMonthlyTotalsByLedger(
 				payload.finance?.operationalMonthlyReport,
+				CURRENT_MONTH_INDEX
+			);
+			prsMonthlyLedgerSeries = getMonthlyTotalsByLedger(
+				payload.finance?.prsMonthlyReport,
 				CURRENT_MONTH_INDEX
 			);
 
@@ -294,8 +276,8 @@
 
 		return () => {
 			socket.disconnect();
-			// if (qrResizeObserver) qrResizeObserver.disconnect();
 			if (clockTimer) clearInterval(clockTimer);
+			if (chartCarouselTimer) clearInterval(chartCarouselTimer);
 			if (toastTimer) clearTimeout(toastTimer);
 			if (prsToastTimer) clearTimeout(prsToastTimer);
 			if (pulseTimer) clearTimeout(pulseTimer);
@@ -357,13 +339,11 @@
 		>
 			<div class="flex flex-wrap items-start justify-between gap-2.5">
 				<div>
-					<h3 class="text-[1.2rem] font-bold tracking-[-0.01em]">Donasi Operasional Bulanan</h3>
+					<h3 class="text-[1.2rem] font-bold tracking-[-0.01em]">{activeChartTitle}</h3>
 					<p class="mt-1 text-[0.86rem] text-green-900/75">
-						Pemasukan & pengeluaran operasional dari Januari hingga bulan ini (€)
+						{activeChartDescription}
 					</p>
-					<small class="mt-0.5 block text-[0.72rem] text-green-900/60"
-						>Operative Einnahmen & Ausgaben von Januar bis heute</small
-					>
+					<small class="mt-0.5 block text-[0.72rem] text-green-900/60">{activeChartSubtitle}</small>
 				</div>
 				<div class="grid grid-cols-1 gap-2.5 px-1 py-1 text-left sm:grid-cols-2 sm:gap-3">
 					<div class="px-3 py-2.5">
@@ -391,11 +371,11 @@
 						<p class="mt-1 text-[0.68rem] font-semibold text-green-900/80">Donasi PRS Saat Ini</p>
 						<p class="mt-0.5 text-[0.98rem] font-extrabold tracking-[-0.02em] text-green-950">
 							{#if currentPrsDonation !== null}
-								{formatSimpleEuro(currentPrsDonation)}
+								{euroSimple(currentPrsDonation)}
 							{:else}
 								-
 							{/if}<span class="text-[0.72em] font-semibold text-green-900/75"
-								>/{formatSimpleEuro(PRS_DONATION_TARGET)}</span
+								>/{euroSimple(PRS_DONATION_TARGET)}</span
 							>
 						</p>
 						<small class="text-[0.62rem] text-green-900/60">Aktuelle PRS-Spende</small>
@@ -410,7 +390,7 @@
 					<canvas
 						class="h-full w-full"
 						bind:this={chartCanvas}
-						aria-label="Grafik donasi bulanan dalam euro"
+						aria-label={`Grafik donasi bulanan dalam euro untuk ${activeChartMode}`}
 					></canvas>
 				</div>
 			</div>
@@ -418,27 +398,21 @@
 	</section>
 
 	{#if toast}
-		<div
-			class="fixed top-2.5 left-1/2 z-20 w-[min(92vw,520px)] -translate-x-1/2 rounded-xl bg-green-700/95 px-3 py-2.5 text-center text-green-50 shadow-[0_14px_32px_rgba(20,83,45,0.42)] motion-safe:animate-pulse sm:top-4 sm:px-4 sm:py-3"
-			role="status"
-			aria-live="polite"
-		>
-			<p class="mb-1 text-2xl leading-none font-extrabold">+ {euro(toast.amount)}</p>
-			<p class="text-[1rem] font-bold">Jazaakumullahu khairan atas donasinya</p>
-			<p class="mt-1 text-[0.8rem] opacity-90">Moge Allah es Ihnen vielfach vergelten.</p>
-		</div>
+		<DonationToast
+			amount={toast.amount}
+			title="Jazaakumullahu khairan atas donasinya"
+			subtitle="Moge Allah es Ihnen vielfach vergelten."
+			variant="operational"
+		/>
 	{/if}
 
 	{#if prsToast}
-		<div
-			class="fixed top-[4.9rem] left-1/2 z-20 w-[min(92vw,520px)] -translate-x-1/2 rounded-xl bg-emerald-800/95 px-3 py-2.5 text-center text-emerald-50 shadow-[0_14px_32px_rgba(6,95,70,0.42)] motion-safe:animate-pulse sm:top-[5.6rem] sm:px-4 sm:py-3"
-			role="status"
-			aria-live="polite"
-		>
-			<p class="mb-1 text-2xl leading-none font-extrabold">+ {euro(prsToast.amount)}</p>
-			<p class="text-[1rem] font-bold">Donasi PRS baru diterima</p>
-			<p class="mt-1 text-[0.8rem] opacity-90">Neue PRS-Spende ist eingegangen.</p>
-		</div>
+		<DonationToast
+			amount={prsToast.amount}
+			title="Donasi PRS baru diterima"
+			subtitle="Neue PRS-Spende ist eingegangen."
+			variant="prs"
+		/>
 	{/if}
 
 	<button
@@ -449,52 +423,9 @@
 		<small class="mt-0.5 block text-[0.7rem] font-medium opacity-90">Debug eingehend</small>
 	</button>
 
-	<div
-		class="fixed right-2 bottom-2 z-20 flex w-52 flex-col items-center justify-center rounded-xl border border-green-600/25 bg-white/90 p-3 text-center shadow-[0_14px_28px_rgba(21,128,61,0.22)] sm:right-3 sm:bottom-3 sm:w-60 sm:p-3.5"
-	>
-		{#if todayJadwalShalat}
-			<p class="mb-1.5 text-[0.82rem] font-bold tracking-wide text-green-800 uppercase">
-				Waktu Shalat
-			</p>
-			<p class="mb-2 text-[1.1rem] leading-none font-extrabold tracking-[0.02em] text-green-950">
-				{currentTimeLabel}
-			</p>
-			<p class="mb-2.5 text-[0.72rem] font-semibold tracking-wide text-green-900/70">
-				{currentDateLabel}
-			</p>
-			<div class="mb-2.5 grid w-full grid-cols-2 gap-x-2 gap-y-1 text-left">
-				<span class="text-[0.82rem] text-green-900/65">Subuh</span><span
-					class="text-right text-[0.82rem] font-semibold">{todayJadwalShalat.subuh}</span
-				>
-				<span class="text-[0.82rem] text-green-900/65">Terbit</span><span
-					class="text-right text-[0.82rem] font-semibold">{todayJadwalShalat.terbit}</span
-				>
-				<span class="text-[0.82rem] text-green-900/65">Zuhur</span><span
-					class="text-right text-[0.82rem] font-semibold">{todayJadwalShalat.dzuhur}</span
-				>
-				<span class="text-[0.82rem] text-green-900/65">Asar</span><span
-					class="text-right text-[0.82rem] font-semibold">{todayJadwalShalat.ashr}</span
-				>
-				<span class="text-[0.82rem] text-green-900/65">Maghrib</span><span
-					class="text-right text-[0.82rem] font-semibold">{todayJadwalShalat.maghrib}</span
-				>
-				<span class="text-[0.82rem] text-green-900/65">Isya</span><span
-					class="text-right text-[0.82rem] font-semibold">{todayJadwalShalat.isya}</span
-				>
-			</div>
-			<hr class="mb-2 w-full border-green-600/20" />
-		{/if}
-		<!--
-		TODO: Re-enable when two PayPal QR codes are available.
-		Planned blocks:
-		1) Operational Donation QR
-		2) PRS Donation QR
-
-		<p class="text-[0.82rem] font-bold">Scan PayPal</p>
-		<small class="mt-0.5 mb-2 block text-[0.68rem] text-green-900/70">Jetzt spenden</small>
-		<div class="mx-auto w-full" bind:this={qrWrapper}>
-			<canvas class="block h-auto w-full" bind:this={qrCanvas}></canvas>
-		</div>
-		-->
-	</div>
+	<PrayerTimesWidget
+		jadwalShalat={todayJadwalShalat}
+		timeLabel={currentTimeLabel}
+		dateLabel={currentDateLabel}
+	/>
 </main>
