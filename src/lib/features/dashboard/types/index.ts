@@ -46,9 +46,9 @@ export type MonthlyFlowDataset = {
 	values: number[];
 };
 
-export type ChartMode = 'operational' | 'prs';
+export type ChartMode = 'jumatan' | 'operational' | 'prs';
 
-export const CHART_MODES: ChartMode[] = ['operational', 'prs'];
+export const CHART_MODES: ChartMode[] = ['jumatan', 'operational', 'prs'];
 
 export type CurrentOperationalDonationProgress = {
 	totalOrder?: number;
