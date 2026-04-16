@@ -27,7 +27,7 @@ export type FinanceMonthlyData = {
 	};
 };
 
-export type OperationalMonthlyReport = {
+export type FinanceDataMonthlyReport = {
 	year?: number;
 	monthlyData?: FinanceMonthlyData[];
 };
@@ -78,10 +78,11 @@ export type JadwalShalat = {
 
 export type DonationSocketPayload = {
 	finance?: {
-		operationalMonthlyReport?: OperationalMonthlyReport | null;
-		prsMonthlyReport?: OperationalMonthlyReport | null;
+		operationalMonthlyReport?: FinanceDataMonthlyReport | null;
+		prsMonthlyReport?: FinanceDataMonthlyReport | null;
 		currentOperationalDonationProgress?: CurrentOperationalDonationProgress | null;
 		currentPrsDonationProgress?: CurrentPrsDonationProgress | null;
+		shalatJumatDonationMonthlyReport?: FinanceDataMonthlyReport | null;
 	} | null;
 	todayJadwalShalat?: JadwalShalat | null;
 };

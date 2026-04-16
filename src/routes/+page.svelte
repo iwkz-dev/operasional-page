@@ -91,7 +91,7 @@
 		buildMonthDatasets(prsMonthlyLedgerSeries, CURRENT_MONTH_INDEX)
 	);
 	const jumatanMonthDatasets = $derived.by(() =>
-		buildMonthDatasets(jumatanMonthlyLedgerSeries, CURRENT_MONTH_INDEX, currentMonthIncome)
+		buildMonthDatasets(jumatanMonthlyLedgerSeries, CURRENT_MONTH_INDEX)
 	);
 	const activeMonthDatasets = $derived.by(() =>
 		activeChartMode === 'operational'
@@ -223,8 +223,7 @@
 		}
 
 		createOrUpdateChart();
-		// chartCarouselTimer = setInterval(showNextChart, 10000);
-		setChartMode('jumatan');
+		chartCarouselTimer = setInterval(showNextChart, 10000);
 
 		const socket = io(STRAPI_URL, {
 			auth: {
@@ -266,7 +265,10 @@
 				payload.finance?.prsMonthlyReport,
 				CURRENT_MONTH_INDEX
 			);
-			jumatanMonthlyLedgerSeries = operationalMonthlyLedgerSeries;
+			jumatanMonthlyLedgerSeries = getMonthlyTotalsByLedger(
+				payload.finance?.shalatJumatDonationMonthlyReport,
+				CURRENT_MONTH_INDEX
+			);
 
 			if (!hasReceivedInitialPayload) {
 				hydrateDonationProgress(payload.finance?.currentOperationalDonationProgress);
