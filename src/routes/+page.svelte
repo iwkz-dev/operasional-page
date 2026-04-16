@@ -48,6 +48,7 @@
 
 	let operationalMonthlyLedgerSeries = $state<MonthlyLedgerSeries[]>([]);
 	let prsMonthlyLedgerSeries = $state<MonthlyLedgerSeries[]>([]);
+	let jumatanMonthlyLedgerSeries = $state<MonthlyLedgerSeries[]>([]);
 	let todayJadwalShalat = $state<JadwalShalat | null>(null);
 	let hasReceivedInitialPayload = $state(false);
 	let activeChartMode = $state<ChartMode>('operational');
@@ -89,16 +90,29 @@
 	const prsMonthDatasets = $derived.by(() =>
 		buildMonthDatasets(prsMonthlyLedgerSeries, CURRENT_MONTH_INDEX)
 	);
+	const jumatanMonthDatasets = $derived.by(() =>
+		buildMonthDatasets(jumatanMonthlyLedgerSeries, CURRENT_MONTH_INDEX)
+	);
 	const activeMonthDatasets = $derived.by(() =>
-		activeChartMode === 'operational' ? operationalMonthDatasets : prsMonthDatasets
+		activeChartMode === 'operational'
+			? operationalMonthDatasets
+			: activeChartMode === 'prs'
+				? prsMonthDatasets
+				: jumatanMonthDatasets
 	);
 	const activeChartTitle = $derived(
-		activeChartMode === 'operational' ? 'Donasi Operasional Bulanan' : 'Donasi PRS Bulanan'
+		activeChartMode === 'operational'
+			? 'Donasi Operasional Bulanan'
+			: activeChartMode === 'prs'
+				? 'Donasi PRS Bulanan'
+				: 'Donasi Jumatan Bulanan'
 	);
 	const activeChartSubtitle = $derived(
 		activeChartMode === 'operational'
 			? 'Operative Einnahmen & Ausgaben von Januar bis heute'
-			: 'PRS Einnahmen & Ausgaben von Januar bis heute'
+			: activeChartMode === 'prs'
+				? 'PRS Einnahmen & Ausgaben von Januar bis heute'
+				: 'Jumatan Einnahmen & Ausgaben von Januar bis heute'
 	);
 
 	function createOrUpdateChart() {
@@ -249,6 +263,10 @@
 			);
 			prsMonthlyLedgerSeries = getMonthlyTotalsByLedger(
 				payload.finance?.prsMonthlyReport,
+				CURRENT_MONTH_INDEX
+			);
+			jumatanMonthlyLedgerSeries = getMonthlyTotalsByLedger(
+				payload.finance?.shalatJumatDonationMonthlyReport,
 				CURRENT_MONTH_INDEX
 			);
 

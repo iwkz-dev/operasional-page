@@ -15,7 +15,7 @@ export type {
 	JadwalShalat,
 	MonthlyFlowDataset,
 	MonthlyLedgerSeries,
-	OperationalMonthlyReport,
+	FinanceDataMonthlyReport,
 	ToastDonation
 } from './types';
 export { CHART_MODES } from './types';

@@ -1,4 +1,4 @@
-import type { MonthlyLedgerSeries, MonthlyFlowDataset, OperationalMonthlyReport } from '../types';
+import type { MonthlyLedgerSeries, MonthlyFlowDataset, FinanceDataMonthlyReport } from '../types';
 
 export function buildMonthDatasets(
 	monthlySeries: MonthlyLedgerSeries[],
@@ -60,7 +60,7 @@ export function toTimestamp(value: unknown) {
 }
 
 export function getMonthlyTotalsByLedger(
-	report: OperationalMonthlyReport | null | undefined,
+	report: FinanceDataMonthlyReport | null | undefined,
 	currentMonthIndex: number
 ) {
 	const byFlowAndLedgerId = new Map<string, MonthlyLedgerSeries>();
