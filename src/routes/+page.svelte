@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import ChartCard from '$lib/components/ChartCard.svelte';
 	import DonationToast from '$lib/components/DonationToast.svelte';
+	import { DASHBOARD_LANG } from '$lib/features/dashboard/lang';
 	import PrayerTimesWidget from '$lib/components/PrayerTimesWidget.svelte';
 	import KpiCard from '$lib/components/KpiCard.svelte';
 	import Header from '$lib/components/Header.svelte';
@@ -72,7 +73,11 @@
 		/>
 
 		<!-- Chart card -->
-		<ChartCard bind:chartCanvas={dashboard.chartCanvas} donationPulse={dashboard.donationPulse} />
+		<ChartCard
+			bind:chartCanvas={dashboard.chartCanvas}
+			donationPulse={dashboard.donationPulse}
+			activeChartMode={dashboard.activeChartMode}
+		/>
 	</section>
 
 	<!-- Right column: prayer + QR — stacks below chart on mobile -->
@@ -86,8 +91,7 @@
 	{#if dashboard.toast}
 		<DonationToast
 			amount={dashboard.toast.amount}
-			title="Jazaakumullahu khairan atas donasinya"
-			subtitle="Möge Allah es Ihnen vielfach vergelten."
+			message={DASHBOARD_LANG.toasts.operational.message}
 			variant="operational"
 		/>
 	{/if}
@@ -95,8 +99,7 @@
 	{#if dashboard.prsToast}
 		<DonationToast
 			amount={dashboard.prsToast.amount}
-			title="Donasi PRS baru diterima"
-			subtitle="Neue PRS-Spende ist eingegangen."
+			message={DASHBOARD_LANG.toasts.prs.message}
 			variant="prs"
 		/>
 	{/if}

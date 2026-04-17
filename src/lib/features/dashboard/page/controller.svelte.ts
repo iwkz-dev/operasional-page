@@ -210,6 +210,9 @@ export function createDashboardPageController() {
 		get donationPulse() {
 			return donationPulse;
 		},
+		get activeChartMode() {
+			return activeChartMode;
+		},
 		get todayJadwalShalat() {
 			return todayJadwalShalat;
 		},

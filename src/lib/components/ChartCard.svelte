@@ -1,29 +1,16 @@
 <script lang="ts">
+	import { DASHBOARD_LANG } from '$lib/features/dashboard/lang';
 	import type { ChartMode } from '$lib/features/dashboard';
 
 	type Props = {
 		chartCanvas: HTMLCanvasElement | undefined;
 		donationPulse: boolean;
+		activeChartMode: ChartMode;
 	};
 
-	let { chartCanvas = $bindable(), donationPulse }: Props = $props();
+	let { chartCanvas = $bindable(), donationPulse, activeChartMode }: Props = $props();
 
-	let activeChartMode = $state<ChartMode>('operational');
-
-	const activeChartTitle = $derived(
-		activeChartMode === 'operational'
-			? 'Donasi Operasional Bulanan'
-			: activeChartMode === 'prs'
-				? 'Donasi PRS Bulanan'
-				: 'Donasi Jumatan Bulanan'
-	);
-	const activeChartSubtitle = $derived(
-		activeChartMode === 'operational'
-			? 'Operative Einnahmen & Ausgaben von Januar bis heute'
-			: activeChartMode === 'prs'
-				? 'PRS Einnahmen & Ausgaben von Januar bis heute'
-				: 'Jumatan Einnahmen & Ausgaben von Januar bis heute'
-	);
+	const activeChartCopy = $derived(DASHBOARD_LANG.chartModes[activeChartMode]);
 </script>
 
 <article
@@ -34,9 +21,9 @@
 	<div class="flex items-baseline justify-between gap-2 px-4 pt-3.5 pb-1 sm:pt-4">
 		<div>
 			<h3 class="text-[0.88rem] font-bold tracking-tight sm:text-[0.95rem]">
-				{activeChartTitle}
+				{activeChartCopy.title.original}
 			</h3>
-			<p class="mt-0.5 text-[0.62rem] text-green-800/55">{activeChartSubtitle}</p>
+			<p class="mt-0.5 text-[0.62rem] text-green-800/55">{activeChartCopy.title.sub}</p>
 		</div>
 	</div>
 	<div class="min-h-0 flex-1 px-3 pb-3 sm:px-4 sm:pb-4">
@@ -44,7 +31,7 @@
 			<canvas
 				class="h-full w-full"
 				bind:this={chartCanvas}
-				aria-label={`Grafik donasi bulanan dalam euro untuk ${activeChartMode}`}
+				aria-label={activeChartCopy.ariaLabel.original}
 			></canvas>
 		</div>
 	</div>
