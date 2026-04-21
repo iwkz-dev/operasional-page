@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { euro } from '$lib/features/dashboard';
+	import type { LocalizedText } from '$lib/features/dashboard/lang';
 
 	type Props = {
 		amount: number;
-		title: string;
-		subtitle: string;
+		message: LocalizedText;
 		variant?: 'operational' | 'prs';
 	};
 
-	let { amount, title, subtitle, variant = 'operational' }: Props = $props();
+	let { amount, message, variant = 'operational' }: Props = $props();
 
 	const variantStyles = {
 		operational:
@@ -27,6 +27,6 @@
 	<p class="text-[1.5rem] leading-none font-extrabold tracking-tight sm:text-[1.75rem]">
 		+ {euro(amount)}
 	</p>
-	<p class="mt-1.5 text-[0.82rem] font-semibold opacity-95">{title}</p>
-	<p class="mt-0.5 text-[0.68rem] font-medium opacity-75">{subtitle}</p>
+	<p class="mt-1.5 text-[0.82rem] font-semibold opacity-95">{message.original}</p>
+	<p class="mt-0.5 text-[0.68rem] font-medium opacity-75">{message.sub}</p>
 </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import QRCode from 'qrcode';
+	import { DASHBOARD_LANG } from '$lib/features/dashboard/lang';
 	import type { JadwalShalat } from '$lib/features/dashboard';
 
 	type Props = {
@@ -11,27 +12,10 @@
 
 	let { jadwalShalat, timeLabel, dateLabel }: Props = $props();
 
-	const PRAYER_ROWS: { label: string; key: keyof JadwalShalat }[] = [
-		{ label: 'Subuh', key: 'subuh' },
-		{ label: 'Terbit', key: 'terbit' },
-		{ label: 'Zuhur', key: 'dzuhur' },
-		{ label: 'Asar', key: 'ashr' },
-		{ label: 'Maghrib', key: 'maghrib' },
-		{ label: 'Isya', key: 'isya' }
-	];
+	const PRAYER_ROWS: { label: { original: string; sub: string }; key: keyof JadwalShalat }[] =
+		DASHBOARD_LANG.prayerWidget.prayerRows;
 
-	const DONATION_LINKS = [
-		{
-			title: 'Operasional',
-			url: 'https://donasi.iwkz.de/operasional',
-			displayUrl: 'donasi.iwkz.de/operasional'
-		},
-		{
-			title: 'Proyek Rumah Surga (PRS)',
-			url: 'https://donasi.iwkz.de/prs',
-			displayUrl: 'donasi.iwkz.de/prs'
-		}
-	];
+	const DONATION_LINKS = DASHBOARD_LANG.prayerWidget.donationLinks;
 
 	const QR_OPTIONS: QRCode.QRCodeToDataURLOptions = {
 		margin: 1,
@@ -60,7 +44,8 @@
 		>
 			<div class="mb-2.5 flex items-baseline justify-between">
 				<p class="text-[0.6rem] font-bold tracking-[0.14em] text-green-600 uppercase select-none">
-					Waktu Shalat
+					{DASHBOARD_LANG.prayerWidget.scheduleTitle.original} /
+					{DASHBOARD_LANG.prayerWidget.scheduleTitle.sub}
 				</p>
 				<p class="text-[0.58rem] font-medium text-green-800/45">{dateLabel}</p>
 			</div>
@@ -75,7 +60,7 @@
 				{#each PRAYER_ROWS as { label, key } (key)}
 					<div class="flex flex-col items-center rounded-xl bg-green-50/60 px-1 py-1.5 sm:py-2">
 						<span class="text-[0.52rem] font-semibold text-green-700/50 uppercase sm:text-[0.58rem]"
-							>{label}</span
+							>{label.original}</span
 						>
 						<span
 							class="mt-0.5 text-[0.82rem] leading-none font-bold text-green-950 sm:text-[0.92rem]"
@@ -93,7 +78,8 @@
 			<p
 				class="mb-2.5 text-[0.6rem] font-bold tracking-[0.14em] text-green-600 uppercase select-none"
 			>
-				Donasi / Spenden
+				{DASHBOARD_LANG.prayerWidget.donationTitle.original} /
+				{DASHBOARD_LANG.prayerWidget.donationTitle.sub}
 			</p>
 
 			<div class="flex flex-col gap-3">
@@ -103,12 +89,12 @@
 							{#if qrDataUrls[url]}
 								<img
 									src={qrDataUrls[url]}
-									alt="QR {title}"
-									class="size-16 rounded-lg sm:size-[4.5rem]"
+									alt={`QR ${title.original}`}
+									class="size-16 rounded-lg sm:size-18"
 								/>
 							{:else}
 								<div
-									class="flex size-16 items-center justify-center rounded-lg bg-green-50/60 sm:size-[4.5rem]"
+									class="flex size-16 items-center justify-center rounded-lg bg-green-50/60 sm:size-18"
 								>
 									<span class="text-[0.5rem] text-green-700/35">...</span>
 								</div>
@@ -116,7 +102,7 @@
 						</div>
 						<div class="min-w-0">
 							<p class="text-[0.72rem] leading-tight font-bold text-green-950 sm:text-[0.78rem]">
-								{title}
+								{title.original}
 							</p>
 							<p
 								class="mt-0.5 text-[0.62rem] leading-snug font-medium text-emerald-600/70 sm:text-[0.66rem]"

@@ -18,6 +18,8 @@ export type {
 	FinanceDataMonthlyReport,
 	ToastDonation
 } from './types';
+export type { LocalizedText } from './lang';
+export { DASHBOARD_LANG } from './lang';
 export { CHART_MODES } from './types';
 export {
 	buildMonthDatasets,
